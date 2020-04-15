@@ -28,16 +28,16 @@ public class ChannelController {
 	
 	@GetMapping
 	public List<Channel> getAllChannels() {
-		logger.info("正在寻找所有频道信息...");
+		logger.info("正在读取所有频道信息...");
 		List<Channel>results = service.getAllChannels();
 		logger.debug("所有频道的数量是："+results.size());
-		
 		return results;
 	}
 	
 	@GetMapping("/{id}")
 	public Channel getChannel(@PathVariable String id) {
 		logger.info("正在读取"+id+"的频道信息。。。");
+		logger.info("正在读取"+id+"的频道信息...");
 		Channel c=service.getChannel(id);
 		if(c != null) {
 			return c;
