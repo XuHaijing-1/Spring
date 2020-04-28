@@ -1,6 +1,8 @@
 package cn.edu.scujcc.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import cn.edu.scujcc.api.ChannelController;
 import cn.edu.scujcc.dao.ChannelRepository;
 import cn.edu.scujcc.model.Channel;
+import cn.edu.scujcc.model.Comment;
 
 @Service
 public class ChannelService {
@@ -22,19 +25,20 @@ public class ChannelService {
 	private ChannelRepository repo;
 	
 	/**
-	 * »ñÈ¡ËùÓĞÆµµÀÊı¾İ
+	 * è·å–æ‰€æœ‰é¢‘é“æ•°æ®
 	 * 
-	 * @return ÆµµÀList
+	 * @returné¢‘é“List
 	 */
 	public List<Channel>getAllChannels(){
 		return repo.findAll();
 	}
 	
 	/**
-	 * »ñÈ¡Ò»¸öÆµµÀµÄÊı¾İ
+	 * è·å–ä¸€ä¸ªé¢‘é“çš„æ•°æ®
 	 * 
-	 * @param channelId ÆµµÀĞÅÏ¢
-	 * @return ÆµµÀ¶ÔÏó£¬ÈôÎ´ÕÒµ½·µ»Ønull
+	 * 
+	 * @param channelId é¢‘é“ä¿¡æ¯
+	 * @return é¢‘é“å¯¹è±¡ï¼Œè‹¥æœªæ‰¾åˆ°è¿”å›null
 	 */
 	public Channel getChannel(String channelId) {
 		Optional<Channel> result=repo.findById(channelId);
@@ -47,10 +51,10 @@ public class ChannelService {
 	}
 	
 	/**
-	 * É¾³ıÖ¸¶¨ÆµµÀµÄÊı¾İ
+	 * åˆ é™¤æŒ‡å®šé¢‘é“çš„æ•°æ®
 	 * 
-	 * @param channelId ´ıÉ¾³ıµÄÆµµÀÊı¾İ±àºÅ
-	 * @return Èô³É¹¦É¾³ıÔò·µ»Øtrue£¬·ñÔò·µ»Øfalse
+	 * @param channelId å¾…åˆ é™¤çš„é¢‘é“æ•°æ®ç¼–å·
+	 * @return è‹¥æˆåŠŸåˆ é™¤åˆ™è¿”å›trueï¼Œå¦åˆ™è¿”å›false
 	 */
 	public boolean deleteChannel(String channelId) {
 		boolean result=true;
@@ -60,19 +64,19 @@ public class ChannelService {
 	}
 	
 	/**
-	 * ±£´æÆµµÀ
+	 * ä¿å­˜é¢‘é“
 	 * 
-	 * @param c ´ı±£´æµÄÆµµÀ¶ÔÏó£¨Ã»ÓĞidÖµ£©
-	 * @return ±£´æºóµÄÆµµÀ£¨ÓĞidÖµ£©
+	 * @param c å¾…ä¿å­˜çš„é¢‘é“å¯¹è±¡ï¼ˆæ²¡æœ‰idå€¼ï¼‰
+	 * @return  ä¿å­˜åçš„é¢‘é“ï¼ˆæœ‰idå€¼ï¼‰
 	 */
 	public Channel createChannel(Channel c) {
 		return repo.save(c);
 	}
 	
 	/**
-	 * ¸üĞÂÖ¸¶¨µÄÆµµÀĞÅÏ¢
-	 * @param c ĞÂµÄÆµµÀĞÅÏ¢£¬ÓÃÓÚ¸üĞÂÒÑ´æÔÚµÄÍ¬Ò»ÊÓÆµ
-	 * @return ¸üĞÂºóµÄÆµµÀĞÅÏ¢
+	 * æ›´æ–°æŒ‡å®šçš„é¢‘é“ä¿¡æ¯
+	 * @param c æ–°çš„é¢‘é“ä¿¡æ¯ï¼Œç”¨äºæ›´æ–°å·²å­˜åœ¨çš„åŒä¸€è§†é¢‘
+	 * @return æ›´æ–°åçš„é¢‘é“ä¿¡æ¯
 	 */
 	public Channel updateChannel(Channel c) {
 		Channel saved=getChannel(c.getId());
@@ -87,13 +91,18 @@ public class ChannelService {
 				saved.setUrl(c.getUrl());
 			}
 			if(c.getComments()!=null) {
-				saved.getComments().addAll(c.getComments());
-			}else {
-				saved.setComments(c.getComments());
+				if(saved.getComments()!=null) { //æŠŠæ–°è¯„è®ºè¿½åŠ åˆ°è€è¯„è®ºåé¢
+					saved.getComments().addAll(c.getComments());
+				}else {//ç”¨æ–°è¯„è®ºä»£æ›¿è€è¯„è®º
+					saved.setComments(c.getComments());
+				}
 			}
 			logger.debug(saved.toString());
 		}
-		return repo.save(saved);
+		if(c.getCover()!=null) {
+			saved.setCover(c.getCover());
+		}
+		return repo.save(saved); //ä¿å­˜æ›´æ–°åçš„å®ä½“å¯¹è±¡
 	}
 	
 	public List<Channel>titlecxChannel(String title){
@@ -104,8 +113,8 @@ public class ChannelService {
 	}
 	
 	/**
-	 * ÕÒ³ö½ñÌìÓĞµÄÆÀÂÛÆµµÀ
-	 * @return ÆµµÀÁĞ±í
+	 * è·å–ä»Šå¤©çš„è¯„è®ºç«çˆ†ä¿¡æ¯
+	 * @return
 	 */
 	public List<Channel>getLatestCommentsChannel(){
 		LocalDateTime now=LocalDateTime.now();
@@ -115,7 +124,7 @@ public class ChannelService {
 	}
 
 	/**
-	 * ËÑË÷·½·¨
+	 * æœç´¢æ–¹æ³•
 	 * @param title
 	 * @param quality
 	 * @return
@@ -123,4 +132,50 @@ public class ChannelService {
 	 public List<Channel> search(String title,String quality){
 		 return repo.findByTitleAndQuality(title, quality);
 	 }
+	 
+	 /**
+	  * å‘æŒ‡å®šé¢‘é“æ·»åŠ ä¸€æ¡è¯„è®º
+	  * @param channelId æŒ‡å®šçš„é¢‘é“ç¼–å·
+	  * @param comment  å°†è¦æ–°å¢çš„è¯„è®ºå¯¹è±¡
+	  */
+	 public Channel addComment(String channelId, Comment comment) {
+		 Channel saved = getChannel(channelId);
+		 if(saved!=null) {
+			 saved.addComment(comment);
+			 return repo.save(saved);
+		 }
+		 return null;
+	 }
+	 
+	 /**
+	  * è¿”å›æŒ‡å®šé¢‘é“çš„çƒ­é—¨è¯„è®º
+	  * @param channelId æŒ‡å®šé¢‘é“çš„ç¼–å·
+	  * @return çƒ­é—¨è¯„è®ºçš„åˆ—è¡¨
+	  */
+	 public List<Comment> hotComments(String channelId){
+		 List<Comment>result=new ArrayList<>();
+		 Channel saved=getChannel(channelId);
+		 if(saved!=null&&saved.getComments()!=null) {
+			 //æ ¹æ®è¯„è®ºçš„starè¿›è¡Œæ’åº
+			 saved.getComments().sort(new Comparator<Comment>() {
+				 @Override
+				 public int compare(Comment o1,Comment o2) {
+					 if(o1.getStar()==o2.getStar()) {
+						 return 0;
+					 }else if(o1.getStar()<o2.getStar()) {
+						 return 1;
+					 }else {
+						 return -1;
+					 }
+				 }
+			 });
+			 if(saved.getComments().size()>3) {
+				 result = saved.getComments().subList(0, 3);
+			 }else {
+				 result = saved.getComments();
+			 }
+		 }
+		 return result;
+	 }
+	 
 }
