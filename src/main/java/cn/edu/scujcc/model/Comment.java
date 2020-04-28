@@ -10,10 +10,17 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  *
  */
 public class Comment {
-	private String content;
-	private String author;
+	private String author;//评论作者
+	private String content;//评论内容
 	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-	private LocalDateTime dt=LocalDateTime.now();
+	private LocalDateTime dt=LocalDateTime.now();//评论日期时间
+	private int star=0; //评论点赞数量
+	public int getStar() {
+		return star;
+	}
+	public void setStar(int star) {
+		this.star = star;
+	}
 	
 	public String getContent() {
 		return content;
