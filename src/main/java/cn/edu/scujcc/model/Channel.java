@@ -12,12 +12,21 @@ import org.springframework.data.annotation.Id;
  */
 public class Channel {
 	@Id
-	private String id;
-	private String title;
-	private String quality;
-	private String url;
-	private List<Comment>comments;
+	private String id;   //视频id
+	private String title;  //视频标题
+	private String quality; //视频清晰度
+	private String url;  //视频网址
+	private List<Comment>comments;  //评论
 	private String cover; //频道封面图片
+	private int like=0;  //频道点赞数
+	
+	
+	public int getLike() {
+		return like;
+	}
+	public void setLike(int like) {
+		this.like = like;
+	}
 	
 	public String getCover() {
 		return cover;

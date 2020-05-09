@@ -115,4 +115,7 @@ public class ChannelController {
 		return service.hotComments(channelId);
 	}
 	
+	
+	
+	
 }

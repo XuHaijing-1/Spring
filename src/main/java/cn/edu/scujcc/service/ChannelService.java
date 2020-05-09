@@ -102,6 +102,8 @@ public class ChannelService {
 		if(c.getCover()!=null) {
 			saved.setCover(c.getCover());
 		}
+			saved.setLike(c.getLike());
+		
 		return repo.save(saved); //保存更新后的实体对象
 	}
 	
@@ -147,6 +149,8 @@ public class ChannelService {
 		 return null;
 	 }
 	 
+	 
+	 
 	 /**
 	  * 返回指定频道的热门评论
 	  * @param channelId 指定频道的编号
@@ -169,8 +173,8 @@ public class ChannelService {
 					 }
 				 }
 			 });
-			 if(saved.getComments().size()>3) {
-				 result = saved.getComments().subList(0, 3);
+			 if(saved.getComments().size()>4) {
+				 result = saved.getComments().subList(0, 4);
 			 }else {
 				 result = saved.getComments();
 			 }
