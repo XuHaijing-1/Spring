@@ -3,6 +3,8 @@ package cn.edu.scujcc.api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +24,9 @@ public class UserController {
 	
 	@Autowired
 	private UserService service;
+	
+	@Autowired
+	private CacheManager cacheManager;
 	
 	/**
 	 * 注册用户
@@ -49,9 +54,12 @@ public class UserController {
 	public Response login(@PathVariable("username")String username,@PathVariable("password")String password) {
 		Response result=new Response();
 		User saved=service.login(username, password);
-		if(saved!=null) {
+		if(saved!=null) {//登录成功
 			result.setStatus(Response.STATUS_OK);
 			result.setData(saved);
+			//写登录成功的标志
+			Cache cache=cacheManager.getCache("users");
+			cache.put("token",username);
 		}else {
 			logger.debug("密码错误，不能登录！");
 			result.setStatus(Response.STATUS_ERROR);

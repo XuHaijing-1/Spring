@@ -1,5 +1,6 @@
 package cn.edu.scujcc.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,8 @@ import org.springframework.data.annotation.Id;
  * @author 憨态可拘
  *
  */
-public class Channel {
+public class Channel implements Serializable {
+	private static final long serialVersionUID = 7245499099716015024L;
 	@Id
 	private String id;   //视频id
 	private String title;  //视频标题
