@@ -6,20 +6,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cn.edu.scujcc.model.Channel;
 import cn.edu.scujcc.model.Comment;
 import cn.edu.scujcc.service.ChannelService;
+import cn.edu.scujcc.service.UserService;
 
 @RestController
 @RequestMapping("/channel")
@@ -30,11 +30,13 @@ public class ChannelController {
 	private ChannelService service;
 	
 	@Autowired
-	private CacheManager cacheManager;
+	private UserService userService;
 	
 	@GetMapping
-	public List<Channel> getAllChannels() {
-		logger.info("正在读取所有频道信息...");
+	public List<Channel> getAllChannels(@RequestHeader("token") String token) {
+		logger.info("正在读取所有频道信息...,token="+token);
+		String user=userService.currentUser(token);
+		logger.info("当前用户名："+user);
 		List<Channel>results = service.getAllChannels();
 		logger.debug("所有频道的数量是："+results.size());
 		return results;
@@ -46,11 +48,10 @@ public class ChannelController {
 	 * @return
 	 */
 	@GetMapping("/{id}")
-	public Channel getChannel(@PathVariable String id) {
+	public Channel getChannel(@PathVariable String id,@RequestHeader("token") String token) {
 		logger.info("正在读取"+id+"的频道信息...");
-		//检查是否登录的标志是否存在
-		Cache cache=cacheManager.getCache("users");
-		Object token=cache.get("token");
+		String user=userService.currentUser(token);
+		logger.info("当前用户名："+user);
 		if(token != null) {
 			logger.debug("当前已登录用户是："+token);
 			Channel c =service.getChannel(id);
@@ -122,9 +123,9 @@ public class ChannelController {
 	}
 	
 	/**
-	 * 热门指定频道的热门评论（前3条）
+	 * 热门指定频道的热门评论（前4条）
 	 * @param channelId 指定的频道编号
-	 * @param comment 3条热门评论的列表（数组）
+	 * @param comment 4条热门评论的列表（数组）
 	 */
 	@GetMapping("/{channelId}/hotcomments")
 	public List<Comment> hotComment(@PathVariable String channelId){
