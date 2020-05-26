@@ -19,10 +19,8 @@ import cn.edu.scujcc.service.UserService;
 @RequestMapping("/user")
 public class UserController {
 	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-	
 	@Autowired
 	private UserService service;
-	
 	
 	/**
 	 * 注册用户
@@ -31,8 +29,8 @@ public class UserController {
 	 * @throws UserExistException 
 	 */
 	@PostMapping("/register")
-	public Response register(@RequestBody User u){
-		Response result=new Response();
+	public Response<User> register(@RequestBody User u){
+		Response<User> result=new Response<>();
 		logger.debug("即将注册用户，用户数据："+u);
 		try {
 			User saved=service.register(u);
@@ -47,14 +45,14 @@ public class UserController {
 	}
 	
 	@GetMapping("/login/{username}/{password}")
-	public Response login(@PathVariable("username")String username,@PathVariable("password")String password) {
-		Response result=new Response();
+	public Response<String> login(@PathVariable("username") String username, @PathVariable("password") String password) {
+		Response<String> result = new Response<>();
 		User saved=service.login(username, password);
 		if(saved!=null) {//登录成功
 			String uid=service.checkIn(username);
 			result.setStatus(Response.STATUS_OK);
-			result.setData(saved);
-			result.setMessage("登录成功："+uid);
+			result.setData(uid);
+			result.setMessage("登录成功");
 		}else {
 			logger.debug("密码错误，不能登录！");
 			result.setStatus(Response.STATUS_ERROR);

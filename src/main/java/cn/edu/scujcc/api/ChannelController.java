@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import cn.edu.scujcc.model.Channel;
 import cn.edu.scujcc.model.Comment;
+import cn.edu.scujcc.model.Result;
 import cn.edu.scujcc.service.ChannelService;
 import cn.edu.scujcc.service.UserService;
 
@@ -33,48 +33,42 @@ public class ChannelController {
 	private UserService userService;
 	
 	@GetMapping
-	public List<Channel> getAllChannels(@RequestHeader("token") String token) {
-		logger.info("正在读取所有频道信息...,token="+token);
-		String user=userService.currentUser(token);
-		logger.info("当前用户名："+user);
-		List<Channel>results = service.getAllChannels();
-		logger.debug("所有频道的数量是："+results.size());
-		return results;
+	public Result<List<Channel>> getAllChannels() {
+		logger.info("正在读取所有频道信息...");
+		Result<List<Channel>> result=new Result<List<Channel>>();
+		List<Channel> channels = service.getAllChannels();
+		result.setData(channels);
+		return result;
 	}
 	
-	/**
-	 * 读取频道前必须先登录
-	 * @param id
-	 * @return
-	 */
+	
 	@GetMapping("/{id}")
-	public Channel getChannel(@PathVariable String id,@RequestHeader("token") String token) {
+	public Result<Channel> getChannel(@PathVariable String id) {
 		logger.info("正在读取"+id+"的频道信息...");
-		String user=userService.currentUser(token);
-		logger.info("当前用户名："+user);
-		if(token != null) {
-			logger.debug("当前已登录用户是："+token);
-			Channel c =service.getChannel(id);
-			if(c!=null) {
-				return c;
-			}else {
-				logger.error("找不到指定频道");
-				return null;
-			}
-		}else {// 没有登录,拒绝访问
-			return null;
+		Result<Channel> result =new Result<>();
+		Channel c=service.getChannel(id);
+		if(c!= null) {
+			result=result.ok();
+			result.setData(c);
+		}else {
+			logger.error("找不到指定频道");
+			result=result.error();
+			result.setMessage("找不到指定的频道信息！");
 		}
+		return result;
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<String> deleteChannel(@PathVariable String id) {
-		System.out.println("即将删除频道：id="+id);
-		boolean result=this.service.deleteChannel(id);
-		if(result) {
-			return ResponseEntity.ok().body("删除成功");
+	public Result<Channel> deleteChannel(@PathVariable String id) {
+		logger.info("即将删除频道：id="+id);
+		Result<Channel> result =new Result<>();
+		boolean del=service.deleteChannel(id);
+		if(del) {
+			result= result.ok();
 		}else {
-			return ResponseEntity.ok().body("删除失败");
+			result.setStatus(Result.ERROR);
 		}
+		return result;
 	}
 	
 	@PostMapping
